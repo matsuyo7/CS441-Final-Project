@@ -307,10 +307,12 @@ def main():
         mini_avg_node += i
     monte_avg_node /= NUM_GAMES
     mini_avg_node /= NUM_GAMES
+    monte_win_rate = (monte_x_wins / (monte_x_wins + monte_o_wins + monte_draws)) * 100
+    mini_win_rate = (mini_x_wins / (mini_o_wins + mini_x_wins + mini_draws)) * 100
     print("Monte Carlo")
-    print(f"X wins: {monte_x_wins}, O wins: {monte_o_wins}, Draws: {monte_draws}, Average rounds per game: {monte_avg_rounds:.2f}, Average nodes visited per game: {monte_avg_node}")
+    print(f"X wins: {monte_x_wins}, O wins: {monte_o_wins}, Draws: {monte_draws}, Win rate: {monte_win_rate}%, Average rounds per game: {monte_avg_rounds:.2f}, Average nodes visited per game: {monte_avg_node}")
     print("Minimax")
-    print(f"X wins: {mini_x_wins}, O wins: {mini_o_wins}, Draws: {mini_draws}, Average rounds per game: {mini_avg_rounds:.2f}, Average nodes visited per game: {mini_avg_node}")
+    print(f"X wins: {mini_x_wins}, O wins: {mini_o_wins}, Draws: {mini_draws}, Win rate: {mini_win_rate}%, Average rounds per game: {mini_avg_rounds:.2f}, Average nodes visited per game: {mini_avg_node}")
     
     plt.figure(figsize=(12, 6))
     #plot monte carlo tree search results
