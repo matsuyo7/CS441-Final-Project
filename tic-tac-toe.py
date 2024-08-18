@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 NUM_GAMES = 50
 
 #creates the board and handles the game logic (movement, who wins)
-class TicTacToe:
+class tic_tac_toe:
     def __init__(self):
         #initialize a 3x3 board with empty spaces
         self.board = [' ' for _ in range(9)]
@@ -57,7 +57,7 @@ class TicTacToe:
         return False
 
 #minimax with alphabeta pruning agent
-class MinimaxAgent:
+class minimax:
     def __init__(self, letter):
         self.letter = letter
         self.node_count = 0
@@ -118,7 +118,7 @@ class MinimaxAgent:
                     break   #prune
             return best_score
 
-class MCTSNode:
+class mcts_node:
     def __init__(self, state, parent=None, move=None):
         self.state = state
         self.parent = parent
@@ -127,7 +127,7 @@ class MCTSNode:
         self.visits = 0
         self.wins = 0
 
-    def is_fully_expanded(self):    #if all possible nodes have been explored
+    def fully_explored(self):    #if all possible nodes have been explored
         return len(self.children) == len(self.state.available_moves())
 
     def best_child(self, c_param=1.4):  #returns child with the highest ucb
@@ -143,7 +143,7 @@ class MCTSNode:
         return best_node
 
 #mcts algorithm agent
-class MonteCarloAgent:
+class monte_carlo:
     def __init__(self, letter, simulations=50):    #num of simulations can be changes
         self.letter = letter
         self.simulations = simulations
@@ -151,7 +151,7 @@ class MonteCarloAgent:
 
     def get_action(self, game):
         self.node_count = 0
-        root = MCTSNode(game)
+        root = mcts_node(game)
         
         for _ in range(self.simulations):
             node = self.select(root)
@@ -164,7 +164,7 @@ class MonteCarloAgent:
     def select(self, node): #select a ndoe to expand
         while not node.state.current_winner and node.state.empty_squares():
             self.node_count += 1
-            if not node.is_fully_expanded():
+            if not node.fully_explored():
                 return self.expand(node)
             else:   #select best node
                 node = node.best_child()
@@ -173,21 +173,21 @@ class MonteCarloAgent:
     def expand(self, node): #expand node that haven't been explored
         untried_moves = [move for move in node.state.available_moves() if move not in [child.move for child in node.children]]
         move = random.choice(untried_moves)
-        next_state = TicTacToe()
+        next_state = tic_tac_toe()
         next_state.board = node.state.board[:]
         next_state.make_move(move, self.letter if node.state.board.count('X') == node.state.board.count('O') else ('O' if self.letter == 'X' else 'X'))
-        child_node = MCTSNode(next_state, parent=node, move=move)
+        child_node = mcts_node(next_state, parent=node, move=move)
         node.children.append(child_node)
         return child_node
 
     def simulate(self, node):   #simulates the game for that node
-        temp_game = TicTacToe()
+        temp_game = tic_tac_toe()
         temp_game.board = node.state.board[:]
         temp_game.current_winner = node.state.current_winner
         current_letter = 'O' if self.letter == 'X' else 'X'
         #simulate a game until it ends
         while temp_game.empty_squares() and not temp_game.current_winner:
-            move = self.heuristic_move(temp_game, current_letter)
+            move = self.select_move(temp_game, current_letter)
             temp_game.make_move(move, current_letter)
             current_letter = 'O' if current_letter == 'X' else 'X'
         
@@ -198,9 +198,9 @@ class MonteCarloAgent:
         else:
             return -1
 
-    def heuristic_move(self, game, letter):
+    def select_move(self, game, letter):
         for move in game.available_moves(): #check if a move can win the game
-            temp_game = TicTacToe()
+            temp_game = tic_tac_toe()
             temp_game.board = game.board[:]
             temp_game.make_move(move, letter)
             if temp_game.winner(move, letter):
@@ -208,7 +208,7 @@ class MonteCarloAgent:
         
         opponent_letter = 'O' if letter == 'X' else 'X' #check if it can block opponent
         for move in game.available_moves():
-            temp_game = TicTacToe()
+            temp_game = tic_tac_toe()
             temp_game.board = game.board[:]
             temp_game.make_move(move, opponent_letter)
             if temp_game.winner(move, opponent_letter):
@@ -240,11 +240,11 @@ def play_game(search_algo):
     #play the number of games wanted
     for game_num in range(NUM_GAMES):
         print(f"Game {game_num + 1}:")
-        game = TicTacToe()
+        game = tic_tac_toe()
         if search_algo == 1:
-            x_agent = MonteCarloAgent('X')  #X is the Monte Carlo agent
+            x_agent = monte_carlo('X')  #X is the Monte Carlo agent
         else:
-            x_agent = MinimaxAgent('X')  #X is the Minimax agent
+            x_agent = minimax('X')  #X is the Minimax agent
         rounds = 0
 
         while game.empty_squares():
@@ -256,11 +256,11 @@ def play_game(search_algo):
 
             if game.current_winner:
                 print(f"{game.current_winner} wins!\n")
-                o_wins += 1  #O wins
+                o_wins += 1
                 break
             elif game.empty_squares() == False:
                 print("It's a draw!\n")
-                draws += 1  #it's a draw
+                draws += 1
                 break
 
             #X makes a move using one of the algos
@@ -275,11 +275,11 @@ def play_game(search_algo):
 
             if game.current_winner:
                 print(f"{game.current_winner} wins!\n")
-                x_wins += 1  #X wins
+                x_wins += 1
                 break
             elif game.empty_squares() == False:
                 print("It's a draw!\n")
-                draws += 1  #it's a draw
+                draws += 1
                 break
 
         #add up averages and scores for the game
